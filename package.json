@@ -1,0 +1,20 @@
+{
+  "name": "ai-lab-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "AI-Lab.js",
+  "scripts": {
+    "start": "node AI-Lab.js",
+    "dev": "nodemon AI-Lab.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "ws": "^8.17.0",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
+

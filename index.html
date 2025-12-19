@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ANGRYDROID AI LAB - Staff Orchestration Dashboard v2.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <div>
+        <h1>ANGRYDROID AI LAB</h1>
+        <h2>Staff Orchestration Dashboard v2.0 — Capsule Runtime</h2>
+      </div>
+      <div class="header-status">
+        <span id="health-indicator" class="pill pill-slow">UNKNOWN</span>
+        <button id="refresh-btn" class="btn btn-outline">Refresh</button>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- System Metrics -->
+      <section class="card card-wide">
+        <div class="card-header">
+          <h3>System Metrics</h3>
+        </div>
+        <div class="card-body metrics-grid">
+          <div class="metric">
+            <span class="metric-label">Total Queries Today</span>
+            <span id="metric-queries" class="metric-value">0</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Average Latency</span>
+            <span id="metric-latency" class="metric-value">0ms</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Total Cost Today</span>
+            <span id="metric-cost" class="metric-value">$0.00</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Active Models</span>
+            <span id="metric-models" class="metric-value">0/0</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">System Health</span>
+            <span id="metric-health-text" class="metric-value">UNKNOWN</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Staff Roster -->
+      <section class="card">
+        <div class="card-header">
+          <h3>Staff Roster</h3>
+          <div class="tabs">
+            <button class="tab active" data-tab="all">All</button>
+            <button class="tab" data-tab="c-suite">C-Suite</button>
+            <button class="tab" data-tab="engineering">Engineering</button>
+            <button class="tab" data-tab="vision">Vision</button>
+            <button class="tab" data-tab="r&d">R&D</button>
+          </div>
+        </div>
+        <div class="card-body roster-list" id="roster-list">
+          <!-- Populated by JS from YAML manifest (simplified) -->
+        </div>
+      </section>
+
+      <!-- Query Tester -->
+      <section class="card">
+        <div class="card-header">
+          <h3>Query Tester</h3>
+        </div>
+        <div class="card-body">
+          <textarea id="query-input" placeholder="Enter your query here..."></textarea>
+          <div class="btn-row">
+            <button id="route-query-btn" class="btn btn-primary">Route Query</button>
+            <button id="clear-query-btn" class="btn btn-secondary">Clear</button>
+            <button id="load-example-btn" class="btn btn-outline">Load Example</button>
+          </div>
+          <div class="query-result">
+            <h4>Routing Result</h4>
+            <pre id="query-result-output">{}</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cost Analysis -->
+      <section class="card">
+        <div class="card-header">
+          <h3>Cost Analysis</h3>
+          <span class="card-subtitle">Cost per 1k tokens ($)</span>
+        </div>
+        <div class="card-body">
+          <canvas id="cost-chart"></canvas>
+        </div>
+      </section>
+
+      <!-- Performance -->
+      <section class="card">
+        <div class="card-header">
+          <h3>Performance</h3>
+          <span class="card-subtitle">Latency (ms)</span>
+        </div>
+        <div class="card-body">
+          <canvas id="latency-chart"></canvas>
+        </div>
+      </section>
+
+      <!-- Org Structure -->
+      <section class="card">
+        <div class="card-header">
+          <h3>Org Structure</h3>
+        </div>
+        <div class="card-body org-tree" id="org-tree">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- Active Queries -->
+      <section class="card">
+        <div class="card-header">
+          <h3>Active Queries</h3>
+        </div>
+        <div class="card-body">
+          <ul id="active-queries" class="log-list"></ul>
+        </div>
+      </section>
+
+      <!-- Recent Logs -->
+      <section class="card card-wide">
+        <div class="card-header">
+          <h3>Recent Logs</h3>
+          <span id="ws-status" class="pill pill-disconnected">WS: DISCONNECTED</span>
+        </div>
+        <div class="card-body">
+          <ul id="logs" class="log-list"></ul>
+        </div>
+      </section>
+
+      <!-- Model Inspector -->
+      <section class="card">
+        <div class="card-header">
+          <h3>Model Inspector</h3>
+          <span class="card-subtitle">Last Routed Model</span>
+        </div>
+        <div class="card-body">
+          <div id="model-inspector">
+            <p><strong>Model ID:</strong> <span id="mi-id">—</span></p>
+            <p><strong>Endpoint:</strong> <span id="mi-endpoint">—</span></p>
+            <p><strong>Division:</strong> <span id="mi-division">—</span></p>
+            <p><strong>Cost / 1k tokens:</strong> <span id="mi-cost">—</span></p>
+            <p><strong>Latency SLA:</strong> <span id="mi-latency">—</span></p>
+            <p><strong>Specialization:</strong> <span id="mi-specialization">—</span></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Division Heatmap -->
+      <section class="card">
+        <div class="card-header">
+          <h3>Division Activity</h3>
+          <span class="card-subtitle">Synthetic heatmap (local session)</span>
+        </div>
+        <div class="card-body">
+          <canvas id="division-chart"></canvas>
+        </div>
+      </section>
+
+      <!-- YAML Viewer (read-only) -->
+      <section class="card card-wide">
+        <div class="card-header">
+          <h3>Manifest Snapshot</h3>
+          <span class="card-subtitle">Capsule roster (static view)</span>
+        </div>
+        <div class="card-body yaml-view">
+          <pre id="yaml-viewer">YAML manifest snapshot not loaded in frontend. Backend owns the source of truth.</pre>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>
+
